@@ -1,0 +1,14 @@
+{
+  "name": "practice",
+  "version": "1.0.0",
+  "description": "Trying to make app from memory with electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Danny Brandt",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^4.0.0"
+  }
+}

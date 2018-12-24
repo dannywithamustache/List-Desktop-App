@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Practice app build with electron</title>
+    
+</head>
+<body>
+<nav class="container-fluid text-center text-white bg-dark">
+    <div class"container">
+    <h1 class="page-header">LIST</h1>
+    </div>
+</nav>
+<div class="container text-center">
+
+<ul class="list-group text-center"></ul>
+</div>
+    
+</body>
+<script> 
+//not sure if i needed globals for my functions to share variables if they are nested
+let removeBtn;
+let cancelBtn;
+let uncheckBtn;
+//increment items and use to determine an id
+let num = 1;
+const electron = require('electron');
+const {ipcRenderer} = electron;
+const ul = document.querySelector('ul')
+//Put item typed on main screen when subitted
+ipcRenderer.on('item:add', function(e, item){
+    console.log(item);
+    //make list element
+    if(item !== ''){
+    const li = document.createElement('li');
+    li.className='list-group-item';
+    //make textNode that takes item
+    const itemText = document.createTextNode(item);
+    li.id = num;
+    num++;
+    console.log(num);
+    li.appendChild(itemText);
+    ul.appendChild(li)
+    }; 
+});
+// Clear items
+ipcRenderer.on('item:clear', function(e){
+    ul.innerHTML='';
+});
+
+//Eventlistener for item
+ul.addEventListener('click', checkItem);
+
+//Check off item on list
+function checkItem(e){
+    
+    let item = e.target;
+    let id = item.id;
+if(/^[0-9]*$/.test(id)){
+    item.setAttribute("class","btn btn-success");
+    item.id += "checked";
+    }
+    //Check if item should be delted
+    else if (e.target.childNodes.length <= 2){
+//Make Delete Button
+removeBtn = document.createElement("button");
+removeBtn.className ="btn btn-danger";
+removeBtn.innerHTML ='Delete';
+item.appendChild(removeBtn);
+removeBtn.addEventListener('click', deleteItem);
+//Make Cancel button
+cancelBtn = document.createElement("button");
+cancelBtn.className ="btn btn-warning";
+cancelBtn.innerHTML ='Cancel'
+item.appendChild(cancelBtn);
+cancelBtn.addEventListener('click', cancelDel);
+  //Make uncheck button
+    uncheckBtn = document.createElement("button");
+    uncheckBtn.className ="btn btn-primary";
+    uncheckBtn.innerHTML ='Uncheck';
+    item.appendChild(uncheckBtn);
+    uncheckBtn.addEventListener('click', uncheckItem);
+
+console.log(item);
+//delete item
+}
+//Uncheck
+function uncheckItem(e){
+e.preventDefault();
+let item = e.target.parentNode;
+item.removeAttribute("class");
+item.removeAttribute("id");
+item.setAttribute("class","list-group-item");
+e.target.remove();
+removeBtn.remove();
+cancelBtn.remove();
+
+};
+//Cancel button function
+function cancelDel(e){
+e.preventDefault();
+restoreItem(e.target.parentNode);
+e.target.remove();
+removeBtn.remove();
+uncheckBtn.remove();
+;
+};
+//Delete Item function
+function deleteItem(e){
+e.preventDefault();
+let item = e.target.parentNode;
+item.remove();
+num--;
+};
+console.log(num);
+console.log(item);
+};
+function restoreItem(item){
+    item.setAttribute("class","btn btn-success");
+    console.log(item);
+};
+
+
+
+</script>
+</html>
